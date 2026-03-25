@@ -1,18 +1,22 @@
-import express from 'express';
+import express from "express"
+import productRoutes from "./routes/product.routes"
+import { logger } from "./middlewares/logger"
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const app = express()
 
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
+app.use(express.json())
+app.use(logger)
 
+app.use("/products", productRoutes)
 
-app.post('/data', (req, res) => {
-  res.send('Data received!');
-});
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", message: "Service is running" })
+})
 
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" })
+})
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(3000, () => {
+  console.log("Server running on port 3000")
+})
