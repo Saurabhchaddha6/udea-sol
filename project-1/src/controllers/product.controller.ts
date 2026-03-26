@@ -1,19 +1,18 @@
 import { Request, Response } from "express"
-import { Product } from "../types/product"
+import * as productService from "../services/product.service"
 
-let products: Product[] = []
-let idCounter = 1
 
 // GET /products
-export const getProducts = (req: Request, res: Response) => {
+export const getProducts =async (req: Request, res: Response) => {
+  const products =await productService.getAllProducts()
   res.status(200).json(products)
 }
 
 // GET /products/:id
-export const getProductById = (req: Request, res: Response) => {
-  const id = Number(req.params.id)
+export const getProductById =async (req: Request, res: Response) => {
 
-  const product = products.find(p => p.id === id)
+  const id = Number(req.params.id)
+  const product = await productService.getProductById(id.toString())  
 
   if (!product) {
     return res.status(404).json({ message: "Product not found" })
@@ -23,64 +22,51 @@ export const getProductById = (req: Request, res: Response) => {
 }
 
 // POST /products
-export const createProduct = (req: Request, res: Response) => {
+export const createProduct =async (req: Request, res: Response) => {
   const { name, price } = req.body
 
   if (!name || price === undefined) {
     return res.status(400).json({ message: "Name and price are required" })
   }
 
-  if (typeof price !== "number" || price < 0) {
-    return res.status(400).json({ message: "Price must be a positive number" })
-  }
+  const product = await productService.createProduct({ name, price })
 
-  const newProduct: Product = {
-    id: idCounter++,
-    name,
-    price
-  }
 
-  products.push(newProduct)
-
-  res.status(201).json(newProduct)
+  res.status(201).json(product)
 }
 
 // PUT /products/:id
-export const updateProduct = (req: Request, res: Response) => {
-  const id = Number(req.params.id)
-  const { name, price } = req.body
+export const updateProduct =async (req: Request, res: Response) => {
 
-  const product = products.find(p => p.id === id)
+  const id = req.params.id?.toString()
+
+  if (!id) {
+    return res.status(400).json({ message: "Invalid product ID" })
+  }
+
+  const product = await productService.updateProduct(id, req.body)
 
   if (!product) {
     return res.status(404).json({ message: "Product not found" })
-  }
-
-  if (name !== undefined) {
-    product.name = name
-  }
-
-  if (price !== undefined) {
-    if (typeof price !== "number" || price < 0) {
-      return res.status(400).json({ message: "Price must be a positive number" })
-    }
-    product.price = price
   }
 
   res.status(200).json(product)
 }
 
 // DELETE /products/:id
-export const deleteProduct = (req: Request, res: Response) => {
-  const id = Number(req.params.id)
+export const deleteProduct =async (req: Request, res: Response) => {
+  
+  const id = req.params.id?.toString()
 
-  const index = products.findIndex(p => p.id === id)
-
-  if (index === -1) {
-    return res.status(404).json({ message: "Product not found" })
+  if (!id) {
+    return res.status(400).json({ message: "Invalid product ID" })
   }
 
-  products.splice(index, 1)
+  const product = await productService.deleteProduct(id)
+
+  if (!product) {
+    return res.status(404).json({ message: "Product not found" })
+  }
 
   res.status(204).send()
 }
