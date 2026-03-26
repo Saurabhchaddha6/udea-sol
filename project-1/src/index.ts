@@ -1,6 +1,12 @@
 import express from "express"
 import productRoutes from "./routes/product.routes"
 import { logger } from "./middlewares/logger"
+import dotenv from "dotenv"
+import { connectDB } from "./config/db"
+
+dotenv.config()
+connectDB()
+
 
 const app = express()
 
