@@ -6,8 +6,11 @@ import {
   updateProduct,
   deleteProduct
 } from "../controllers/product.controller"
+import { authenticate } from "../middlewares/auth.middleware"
 
 const router = Router()
+
+router.use(authenticate)
 
 router.get("/", getProducts)
 router.get("/:id", getProductById)

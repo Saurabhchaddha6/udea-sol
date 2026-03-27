@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import * as productService from "../services/product.service"
+import mongoose from "mongoose"
 
 
 // GET /products
@@ -11,8 +12,7 @@ export const getProducts =async (req: Request, res: Response) => {
 // GET /products/:id
 export const getProductById =async (req: Request, res: Response) => {
 
-  const id = Number(req.params.id)
-  const product = await productService.getProductById(id.toString())  
+  const product = await productService.getProductById(req.params.id)
 
   if (!product) {
     return res.status(404).json({ message: "Product not found" })
@@ -36,11 +36,10 @@ export const createProduct =async (req: Request, res: Response) => {
 }
 
 // PUT /products/:id
-export const updateProduct =async (req: Request, res: Response) => {
+export const updateProduct = async (req: Request, res: Response) => {
+  const { id } = req.params
 
-  const id = req.params.id?.toString()
-
-  if (!id) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: "Invalid product ID" })
   }
 
@@ -52,7 +51,6 @@ export const updateProduct =async (req: Request, res: Response) => {
 
   res.status(200).json(product)
 }
-
 // DELETE /products/:id
 export const deleteProduct =async (req: Request, res: Response) => {
   
