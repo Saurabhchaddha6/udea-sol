@@ -15,19 +15,18 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
         console.log("JWT SECRET MISSING")
         return res.status(500).json({ message: "Server configuration error" })
     }
+    
 
     try {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string }
 
         // 🔥 4. Check decoded payload
-        console.log("DECODED:", decoded)
-
-        ;(req as any).userId = decoded.userId
+        
+        (req as any).userId = decoded.userId
 
         next()
     } catch (error) {
-        console.log("JWT ERROR:", error)
         return res.status(401).json({ message: "Invalid token" })
     }
 }

@@ -4,6 +4,7 @@ import { logger } from "./middlewares/logger"
 import dotenv from "dotenv"
 import { connectDB } from "./config/db"
 import authRoutes from "./routes/auth.routes"
+import { errorHandler } from "./middlewares/error.middleware"
 
 
 dotenv.config({ path: "./.env" })
@@ -25,6 +26,18 @@ app.get("/health", (req, res) => {
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" })
+})
+
+app.use(errorHandler)
+
+process.on("unhandledRejection", (err) => {
+  console.error("UNHANDLED REJECTION:", err)
+  process.exit(1)
+})
+
+process.on("uncaughtException", (err) => {
+  console.error("UNCAUGHT EXCEPTION:", err)
+  process.exit(1)
 })
 
 app.listen(3000, () => {

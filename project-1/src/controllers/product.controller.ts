@@ -1,13 +1,14 @@
 import { Request, Response } from "express"
 import * as productService from "../services/product.service"
 import mongoose from "mongoose"
-
+import { asyncHandler } from "../utils/asyncHandler"
+import { ApiError } from "../utils/ApiError"
 
 // GET /products
-export const getProducts =async (req: Request, res: Response) => {
+export const getProducts =asyncHandler(async (req: Request, res: Response) => {
   const products =await productService.getAllProducts()
   res.status(200).json(products)
-}
+})
 
 // GET /products/:id
 export const getProductById =async (req: Request, res: Response) => {
@@ -15,7 +16,7 @@ export const getProductById =async (req: Request, res: Response) => {
   const product = await productService.getProductById(req.params.id)
 
   if (!product) {
-    return res.status(404).json({ message: "Product not found" })
+    throw new ApiError(404, "Product not found")
   }
 
   res.status(200).json(product)
@@ -46,7 +47,7 @@ export const updateProduct = async (req: Request, res: Response) => {
   const product = await productService.updateProduct(id, req.body)
 
   if (!product) {
-    return res.status(404).json({ message: "Product not found" })
+    throw new ApiError(404, "Product not found")
   }
 
   res.status(200).json(product)
@@ -63,8 +64,8 @@ export const deleteProduct =async (req: Request, res: Response) => {
   const product = await productService.deleteProduct(id)
 
   if (!product) {
-    return res.status(404).json({ message: "Product not found" })
+    throw new ApiError(404, "Product not found")
   }
-
+  
   res.status(204).send()
 }
