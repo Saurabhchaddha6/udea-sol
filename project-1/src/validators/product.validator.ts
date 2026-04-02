@@ -22,3 +22,13 @@ export const productIdSchema = z.object({
     id: z.string().min(1)
   })
 })
+
+export const filterSchema = z.object({
+  query: z.object({
+    page: z.coerce.number().min(1).optional(),
+    limit: z.coerce.number().min(1).max(100).optional(),
+    minPrice: z.coerce.number().optional(),
+    maxPrice: z.coerce.number().optional(),
+    name: z.string().optional()
+  })
+})

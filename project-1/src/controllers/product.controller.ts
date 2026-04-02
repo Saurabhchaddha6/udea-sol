@@ -5,9 +5,22 @@ import { asyncHandler } from "../utils/asyncHandler"
 import { ApiError } from "../utils/ApiError"
 
 // GET /products
-export const getProducts =asyncHandler(async (req: Request, res: Response) => {
-  const products =await productService.getAllProducts()
-  res.status(200).json(products)
+export const getProducts = asyncHandler(async (req, res) => {
+  const page = Math.max(Number(req.query.page) || 1, 1)
+  const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100)
+
+  const filters = {
+    minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
+    maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
+    name: req.query.name as string | undefined
+  }
+
+  const result = await productService.getAllProducts(page, limit, filters)
+
+  res.status(200).json({
+    success: true,
+    ...result
+  })
 })
 
 // GET /products/:id
