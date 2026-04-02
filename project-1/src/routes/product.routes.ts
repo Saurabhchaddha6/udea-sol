@@ -11,15 +11,18 @@ import { validate } from "../middlewares/validate.middleware"
 import {
   createProductSchema,
   updateProductSchema,
-  productIdSchema
+  productIdSchema,
+  filterSchema
 } from "../validators/product.validator"
+import { rateLimiter } from "../middlewares/rateLimit.middleware"
 
 
 const router = Router()
 
 router.use(authenticate)
+router.use(rateLimiter)
 
-router.get("/", getProducts)
+router.get("/", validate(filterSchema), getProducts)
 router.get("/:id", validate(productIdSchema), getProductById)
 router.post("/", validate(createProductSchema), createProduct)
 router.put("/:id", validate(updateProductSchema), updateProduct)
