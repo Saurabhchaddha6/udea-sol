@@ -5,7 +5,7 @@ import { asyncHandler } from "../utils/asyncHandler"
 import { ApiError } from "../utils/ApiError"
 
 // GET /products
-export const getProducts = asyncHandler(async (req, res) => {
+export const getProducts = asyncHandler(async (req: Request, res: Response) => {
   const page = Math.max(Number(req.query.page) || 1, 1)
   const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100)
 
