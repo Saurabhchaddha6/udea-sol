@@ -24,37 +24,47 @@ export const getProducts = asyncHandler(async (req: Request, res: Response) => {
 })
 
 // GET /products/:id
-export const getProductById =async (req: Request, res: Response) => {
+export const getProductById = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params
 
-  const product = await productService.getProductById(req.params.id)
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, "Invalid product ID")
+  }
+
+  const product = await productService.getProductById(id)
 
   if (!product) {
     throw new ApiError(404, "Product not found")
   }
 
-  res.status(200).json(product)
-}
+  res.status(200).json({
+    success: true,
+    data: product
+  })
+})
 
 // POST /products
-export const createProduct =async (req: Request, res: Response) => {
+export const createProduct = asyncHandler(async (req: Request, res: Response) => {
   const { name, price } = req.body
 
   if (!name || price === undefined) {
-    return res.status(400).json({ message: "Name and price are required" })
+    throw new ApiError(400, "Name and price are required")
   }
 
   const product = await productService.createProduct({ name, price })
 
-
-  res.status(201).json(product)
-}
+  res.status(201).json({
+    success: true,
+    data: product
+  })
+})
 
 // PUT /products/:id
-export const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "Invalid product ID" })
+    throw new ApiError(400, "Invalid product ID")
   }
 
   const product = await productService.updateProduct(id, req.body)
@@ -63,15 +73,18 @@ export const updateProduct = async (req: Request, res: Response) => {
     throw new ApiError(404, "Product not found")
   }
 
-  res.status(200).json(product)
-}
-// DELETE /products/:id
-export const deleteProduct =async (req: Request, res: Response) => {
-  
-  const id = req.params.id?.toString()
+  res.status(200).json({
+    success: true,
+    data: product
+  })
+})
 
-  if (!id) {
-    return res.status(400).json({ message: "Invalid product ID" })
+// DELETE /products/:id
+export const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, "Invalid product ID")
   }
 
   const product = await productService.deleteProduct(id)
@@ -79,6 +92,6 @@ export const deleteProduct =async (req: Request, res: Response) => {
   if (!product) {
     throw new ApiError(404, "Product not found")
   }
-  
+
   res.status(204).send()
-}
+})
