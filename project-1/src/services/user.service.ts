@@ -1,5 +1,6 @@
 import {User} from "../models/user.model"
 import bcrypt from "bcrypt"
+import { sendMail } from "../utils/mailer"
 
 export const registerUser = async (email: string, password: string) => {
   const existingUser = await User.findOne({ email })
@@ -22,6 +23,10 @@ export const loginUser = async (email: string, password: string) => {
   if (!isMatch) {
     throw new Error("Invalid email or password")
   }
-
+  await sendMail({
+    to: email,
+    subject: "Login Notification",
+    text: `You have successfully logged in at ${new Date().toLocaleString()}`,
+  })
   return user
 }
